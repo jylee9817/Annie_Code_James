@@ -1,25 +1,17 @@
-/*
- * ERRORS
- * NULL errors : will put fix at bottom of macros
- */
-
-
 #include "Drive.h"
 
 Drive::Drive()
 {
-	//if(opInt) oi = opInt;
-	
-	shifter = new DoubleSolenoid(PNEUMATICS_24V_SLOT, SHIFTER_SOLENOID_CHANNEL_A, SHIFTER_SOLENOID_CHANNEL_B);   
+	shifter = new DoubleSolenoid(SHIFTER_CHANNEL, SHIFTER_B);
 	shifter->Set(DoubleSolenoid::kReverse);
 	
-	frontLeftMotor = new Talon(DRIVE_FRONT_LEFT_MOTOR_CHANNEL);
-	rearLeftMotor = new Talon(DRIVE_REAR_LEFT_MOTOR_CHANNEL);
-	frontRightMotor = new Talon(DRIVE_FRONT_RIGHT_MOTOR_CHANNEL);
-	rearRightMotor = new Talon(DRIVE_REAR_RIGHT_MOTOR_CHANNEL);
-		
-	timer = new Timer();
-	timer->Start();
+	frontLeftMotor = new CANTalon(DRIVE_FRONT_LEFT_MOTOR_CHANNEL);
+	rearLeftMotor = new CANTalon(DRIVE_REAR_LEFT_MOTOR_CHANNEL);
+	frontRightMotor = new CANTalon(DRIVE_FRONT_RIGHT_MOTOR_CHANNEL);
+	rearRightMotor = new CANTalon(DRIVE_REAR_RIGHT_MOTOR_CHANNEL);
+
+	leftCmd = 0;
+	rightCmd = 0;
 }
 
 Drive::~Drive()
@@ -29,14 +21,12 @@ Drive::~Drive()
 	delete rearLeftMotor;
 	delete frontRightMotor;
 	delete rearRightMotor;
-	delete timer;
 	
 	shifter = NULL;
 	frontLeftMotor = NULL;
 	rearLeftMotor = NULL;
 	frontRightMotor = NULL;
 	rearRightMotor = NULL;
-	timer = NULL;
 }
 
 void Drive::shift(bool highButton, bool lowButton)
@@ -77,23 +67,51 @@ float Drive::setTurnSpeed(float turn, bool turboButton)
 	return 0;
 }
 
+// TJF: Swapped motor logic to reflect physical robot configuration instead of reversing everything.
+
 void Drive::setLeftMotors(float velocity)
 {
-	frontLeftMotor->Set(-velocity);
-	rearLeftMotor->Set(-velocity);
+	frontLeftMotor->Set(velocity); //frontLeftMotor->Set(-velocity);
+	rearLeftMotor->Set(velocity); //rearLeftMotor->Set(-velocity);
 }
 
 void Drive::setRightMotors(float velocity)
 {
-	frontRightMotor->Set(velocity);
-	rearRightMotor->Set(velocity);
+	frontRightMotor->Set(-velocity); //frontRightMotor->Set(velocity);
+	rearRightMotor->Set(-velocity); //rearRightMotor->Set(velocity);
 }
 
 void Drive::drive(float joyY, float joyX)
 {
-	leftCmd = setLinVelocity(joyY +  joyX);
-	rightCmd = setLinVelocity(joyY - joyX);
+	leftCmd  = setLinVelocity(joyY - joyX); //leftCmd = setLinVelocity(joyY +  joyX);
+	rightCmd = setLinVelocity(joyY + joyX); //rightCmd = setLinVelocity(joyY - joyX);
 	
 	setLeftMotors(leftCmd);
 	setRightMotors(rightCmd);
+}
+
+// TJF: Test only function, not needed anymore.
+void Drive::TestSpeedController(int device_id, float velocity)
+{
+	CANTalon* uut;
+
+	switch(device_id)
+	{
+	case DRIVE_FRONT_LEFT_MOTOR_CHANNEL:
+		uut = frontLeftMotor;
+		break;
+	case DRIVE_REAR_LEFT_MOTOR_CHANNEL:
+		uut = frontLeftMotor;
+		break;
+	case DRIVE_FRONT_RIGHT_MOTOR_CHANNEL:
+		uut = frontLeftMotor;
+		break;
+	case DRIVE_REAR_RIGHT_MOTOR_CHANNEL:
+		uut = frontLeftMotor;
+		break;
+	default:
+		return;
+	}
+
+	uut->Set(velocity);
 }

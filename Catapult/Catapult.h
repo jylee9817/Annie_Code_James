@@ -8,6 +8,9 @@ class Catapult
 {
 public:
 	Catapult();
+	// TJF: This class needed a pointer to the OperatorInterface.
+	//		Default constructor SHOULD NOT BE USED unless you re-work everything else
+	Catapult(OperatorInterface *the_oi);
 	~Catapult();
 	
 	void launchBall();
@@ -15,6 +18,9 @@ public:
 	void autoFirstLaunch();
 	void autoSecondLaunch();
 	void autoReset();
+
+	// TJF: Just a test function, not needed for actual robot operation
+	void Test_Motor(float velocity);
 		
 	CANTalon *choochooTalon;
 	int launchState;
@@ -32,8 +38,9 @@ private:
 	bool autonInit2;
 	bool lastPulse;
 	bool lastPressed;
-	float fire;
-	float safety;
+	// TJF: These needed to be booleans since they were used as true/false flags
+	bool fire; //float fire;
+	bool safety; //float safety;
 	bool killSwitchB;
 	bool killSwitchA;
 	

@@ -1,5 +1,5 @@
-#ifndef DRIVE_H
-#define DRIVE_H
+#ifndef DRIVE_H_
+#define DRIVE_H_
 #include "../Macros.h"
 #include "../Operator Interface/OperatorInterface.h"
 
@@ -21,17 +21,15 @@ public:
 
 	void drive(float joyY, float joyX);
 
-	DoubleSolenoid *shifter;
-	Timer *timer;
+	// TJF: Test only function
+	void TestSpeedController(int device_id, float velocity);
 
 private:
 	CANTalon *frontLeftMotor;
 	CANTalon *rearLeftMotor;
 	CANTalon *frontRightMotor;
 	CANTalon *rearRightMotor;
-	
-	OperatorInterface *oi;
-	
+	DoubleSolenoid *shifter;
 	float leftCmd;
 	float rightCmd;	
 };

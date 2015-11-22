@@ -10,14 +10,13 @@ class OperatorInterface
 public:
 	OperatorInterface();	
 	~OperatorInterface();
-	
-	SmartDashboard* getDashboard();
+
+	//SmartDashboard* getDashboard();
 	
 	Joystick *joyDrive;
-	Joystick *joyManip;
 
 private:
-
-	SmartDashboard* dashboard;
+	// TJF: SmartDashboard is a singleton, so you can't create your own instance of it
+	//SmartDashboard* dashboard;
 };
 #endif

@@ -2,10 +2,11 @@
 
 Manipulator::Manipulator()
 {
-	intakeRoller = new Talon(INTAKE_ROLLER_CHANNEL);
-	//intakeSwitch = new DigitalInput(1, INTAKE_SWITCH_CHANNEL);
-	comp599 = new Compressor(0);//change port as needed
+	intakeRoller = new CANTalon(INTAKE_ROLLER_CHANNEL);
+	comp599 = new Compressor();
 	comp599->Start();
+
+	compState = true;
 
 	step = 0;
 	count = 0;
@@ -48,8 +49,20 @@ void Manipulator::toggleCompressor(bool start)
 	if(start)
 		count++;
 
-	if(count%2 == 0)
+	if(count%2 == 0){
 		comp599->Stop();//checks if compressor has started, if it has then stop it
-	else
+		compState = false;
+	}
+	else{
 		comp599->Start();// start the compressor
+		compState = true;
+	}
+}
+
+bool Manipulator::compressorState()
+{
+	if(compState)
+		return true;
+	else
+		return false;
 }

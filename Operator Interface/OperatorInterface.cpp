@@ -3,21 +3,20 @@
 OperatorInterface::OperatorInterface()
 {
 	joyDrive = new Joystick(0);
-
-	dashboard->init(); 
+	// TJF: SmartDashboard is a singleton, so you can't create your own instance of it
+	//dashboard->init();
+	SmartDashboard::init();
 }
 
 OperatorInterface::~OperatorInterface()
 {
 	delete joyDrive;
-	delete joyManip;
 	
 	joyDrive = NULL;
-	joyManip = NULL;	
-	dashboard = NULL;
+	//dashboard = NULL;
 }
 
-SmartDashboard* OperatorInterface::getDashboard()
-{
-	return dashboard;
-}
+//SmartDashboard* OperatorInterface::getDashboard()
+//{
+	//return dashboard;
+//}

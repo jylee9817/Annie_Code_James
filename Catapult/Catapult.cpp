@@ -1,17 +1,14 @@
-/*
- * ERRORS
- * pulseSwitch
- *
- */
-
-
-
 #include "Catapult.h"
+
+
+static const float TRIGGER_THRESHOLD = 0.25;
 
 Catapult::Catapult()
 {
+	oi = nullptr; // TJF: added this to stop the compiler from complaining.
 	armManip = new ManipArm();
 	choochooTalon = new CANTalon(CATAPULT_MOTOR_CHANNEL);
+	choochooTalon->ConfigFwdLimitSwitchNormallyOpen(true);
 	// TODO: figure out how to implement pulse control thingy with the cantalon
 	
 	lastPulse = false;
@@ -35,6 +32,39 @@ Catapult::Catapult()
 	killSwitchB = true;
 }
 
+// TJF: Added this entire constructor (see note in .h file)
+Catapult::Catapult(OperatorInterface* the_oi)
+{
+	oi = the_oi;
+
+	armManip = new ManipArm();
+	choochooTalon = new CANTalon(CATAPULT_MOTOR_CHANNEL);
+	choochooTalon->ConfigFwdLimitSwitchNormallyOpen(true);
+	// TODO: figure out how to implement pulse control thingy with the cantalon
+
+	lastPulse = false;
+	launchState = STATE_HOLD;
+	autoLaunchState = STATE_COCKED;
+
+	init = true;
+	autonInit1 = true;
+	autonInit2 = true;
+	lastPressed = true;
+
+	timer = new Timer();
+	timer->Start();
+	initTime = 0;
+	currentTime = 0;
+
+	safety = 0;
+	fire = 0;
+
+	killSwitchA = true;
+	killSwitchB = true;
+}
+
+
+
 Catapult::~Catapult()
 {
 	delete choochooTalon;
@@ -46,10 +76,15 @@ Catapult::~Catapult()
 
 void Catapult::launchBall()
 {	
-	fire = oi->joyDrive->GetRawButton(FIRE_BUTTON);
-	safety = oi->joyDrive->GetRawButton(SAFETY_BUTTON);
-	killSwitchA = oi->joyDrive->GetRawButton(KILL_SWITCH_A);
-	killSwitchB = oi->joyDrive->GetRawButton(KILL_SWITCH_B);
+	// TJF: According to XBoxControlMapping.jpg the shoulders are axes, not buttons.
+	// 		Just used an arbitrary limit to detect when they're pressed
+	fire   = (oi->joyDrive->GetRawAxis(FIRE_BUTTON)   > TRIGGER_THRESHOLD); //fire = oi->joyDrive->GetRawButton(FIRE_BUTTON);
+	safety = (oi->joyDrive->GetRawAxis(SAFETY_BUTTON) > TRIGGER_THRESHOLD); //safety = oi->joyDrive->GetRawButton(SAFETY_BUTTON);
+	// TJF: Removed this logic for testing. Re-add when needed.
+	killSwitchA = false;
+	oi->joyDrive->GetRawButton(KILL_SWITCH_A);
+	killSwitchB = false;
+	oi->joyDrive->GetRawButton(KILL_SWITCH_B);
 
 	switch(launchState)	
 	{
@@ -79,6 +114,7 @@ void Catapult::launchBall()
 		{
 			lastPressed = false;
 		}
+
 		if((fire == 1) && (safety == 1) && !lastPressed)
 		{
 			lastPressed = true;
@@ -91,27 +127,36 @@ void Catapult::launchBall()
 		{
 			launchState = STATE_OFF;
 		}
+
 		if(init)
 		{
+			// TJF: Added Stop/Start calls to every timer read because I thought that was part of the reason this didn't work.
+			//		It's probably not necessary so feel free to remove those later.
+			timer->Stop();
 			initTime = timer->Get();
 			init = false;
+			timer->Start();
 		}
+
+		timer->Stop();
 		currentTime = timer->Get();
+		timer->Start();
 		
 		if(currentTime < RESET_TIME + initTime)
 		{
-			choochooTalon->Set(-1);
+			choochooTalon->Set(-1.0);
 		}
 		else
 		{
-			choochooTalon->Set(SLOW_SPEED);
+			// TJF: I think this logic is trying to stop the motor, right? I might be reading it wrong.
+			choochooTalon->Set(0.0); //choochooTalon->Set(SLOW_SPEED);
 		}
 		
-		if(pulseSwitch->Get() == 1)
+		if(choochooTalon->IsFwdLimitSwitchClosed() == 1)
 		{
 			lastPulse = true;
 		}
-		if(pulseSwitch->Get() == 0 && lastPulse)
+		if(choochooTalon->IsFwdLimitSwitchClosed() == 0 && lastPulse)
 		{
 			launchState = STATE_COCKED;
 		}
@@ -143,14 +188,19 @@ void Catapult::launchBall()
 		
 		if(init)
 		{
+			timer->Stop();
 			initTime = timer->Get();
+			timer->Start();
 			init = false;
 		}
+
+		timer->Stop();
 		currentTime = timer->Get();
+		timer->Start();
 		
 		if(currentTime < LAUNCH_TIME + initTime)
 		{
-			choochooTalon->Set(-1);
+			choochooTalon->Set(-1.0);
 		}
 		else
 		{
@@ -214,12 +264,18 @@ void Catapult::autoReset()
 		choochooTalon->Set(-1);
 	}
 	
-	if(pulseSwitch->Get() == 1)
+	if(choochooTalon->IsFwdLimitSwitchClosed() == 1)
 	{
 		lastPulse = true;
 	}
-	if(pulseSwitch->Get() == 0 && lastPulse)
+	if(choochooTalon->IsFwdLimitSwitchClosed() == 0 && lastPulse)
 	{
 		choochooTalon->Set(0);
 	}
+}
+
+// TJF: Test only function, not necessary anymore but left for potential use.
+void Catapult::Test_Motor(float velocity)
+{
+	choochooTalon->Set(velocity);
 }
