@@ -40,6 +40,9 @@ Catapult::Catapult(OperatorInterface* the_oi)
 	armManip = new ManipArm();
 	choochooTalon = new CANTalon(CATAPULT_MOTOR_CHANNEL);
 	choochooTalon->ConfigFwdLimitSwitchNormallyOpen(true);
+	/*Configure the fwd limit switch to be normally open or normally closed.
+	Talon will disable momentarilly if the Talon’s current setting is dissimilar
+	to the caller’s requested setting.*/
 	// TODO: figure out how to implement pulse control thingy with the cantalon
 
 	lastPulse = false;
@@ -81,10 +84,10 @@ void Catapult::launchBall()
 	fire   = (oi->joyDrive->GetRawAxis(FIRE_BUTTON)   > TRIGGER_THRESHOLD); //fire = oi->joyDrive->GetRawButton(FIRE_BUTTON);
 	safety = (oi->joyDrive->GetRawAxis(SAFETY_BUTTON) > TRIGGER_THRESHOLD); //safety = oi->joyDrive->GetRawButton(SAFETY_BUTTON);
 	// TJF: Removed this logic for testing. Re-add when needed.
-	killSwitchA = false;
 	oi->joyDrive->GetRawButton(KILL_SWITCH_A);
-	killSwitchB = false;
+	killSwitchA = false;
 	oi->joyDrive->GetRawButton(KILL_SWITCH_B);
+	killSwitchB = false;
 
 	switch(launchState)	
 	{
@@ -152,7 +155,7 @@ void Catapult::launchBall()
 			choochooTalon->Set(0.0); //choochooTalon->Set(SLOW_SPEED);
 		}
 		
-		if(choochooTalon->IsFwdLimitSwitchClosed() == 1)
+		if(choochooTalon->IsFwdLimitSwitchClosed() == 1) //Returns True if limit switch is closed. False if open
 		{
 			lastPulse = true;
 		}
@@ -275,7 +278,7 @@ void Catapult::autoReset()
 }
 
 // TJF: Test only function, not necessary anymore but left for potential use.
-void Catapult::Test_Motor(float velocity)
+/*void Catapult::Test_Motor(float velocity)
 {
 	choochooTalon->Set(velocity);
-}
+}*/
