@@ -41,8 +41,8 @@ Catapult::Catapult(OperatorInterface* the_oi)
 	choochooTalon = new CANTalon(CATAPULT_MOTOR_CHANNEL);
 	choochooTalon->ConfigFwdLimitSwitchNormallyOpen(true);
 	/*Configure the fwd limit switch to be normally open or normally closed.
-	Talon will disable momentarilly if the Talon’s current setting is dissimilar
-	to the caller’s requested setting.*/
+	Talon will disable momentarilly if the Talonâ€™s current setting is dissimilar
+	to the callerâ€™s requested setting.*/
 	// TODO: figure out how to implement pulse control thingy with the cantalon
 
 	lastPulse = false;
@@ -203,7 +203,7 @@ void Catapult::launchBall()
 		
 		if(currentTime < LAUNCH_TIME + initTime)
 		{
-			choochooTalon->Set(-1.0);
+			choochooTalon->Set(-1.0); //maybe change it to positive?
 		}
 		else
 		{
@@ -245,7 +245,7 @@ void Catapult::autoSecondLaunch()
 	
 	if(currentTime < LAUNCH_TIME + initTime)
 	{
-		choochooTalon->Set(-1);
+		choochooTalon->Set(-1); 
 	}
 	else
 	{
@@ -264,7 +264,7 @@ void Catapult::autoReset()
 	
 	if(currentTime < RESET_TIME + initTime)
 	{
-		choochooTalon->Set(-1);
+		choochooTalon->Set(-1); 
 	}
 	
 	if(choochooTalon->IsFwdLimitSwitchClosed() == 1)
