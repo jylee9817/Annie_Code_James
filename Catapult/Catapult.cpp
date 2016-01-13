@@ -154,7 +154,7 @@ void Catapult::launchBall()
 			// TJF: I think this logic is trying to stop the motor, right? I might be reading it wrong.
 			choochooTalon->Set(0.0); //choochooTalon->Set(SLOW_SPEED);
 		}
-		
+		//Re-examine this portion of the code
 		if(choochooTalon->IsFwdLimitSwitchClosed() == 1) //Returns True if limit switch is closed. False if open
 		{
 			lastPulse = true;

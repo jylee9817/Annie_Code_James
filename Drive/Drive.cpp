@@ -1,5 +1,6 @@
 #include "Drive.h"
 
+
 Drive::Drive()
 {
 	shifter = new DoubleSolenoid(SHIFTER_CHANNEL, SHIFTER_B);
@@ -9,6 +10,8 @@ Drive::Drive()
 	rearLeftMotor = new CANTalon(DRIVE_REAR_LEFT_MOTOR_CHANNEL);
 	frontRightMotor = new CANTalon(DRIVE_FRONT_RIGHT_MOTOR_CHANNEL);
 	rearRightMotor = new CANTalon(DRIVE_REAR_RIGHT_MOTOR_CHANNEL);
+
+	navX = new AHRS(SPI::Port::kMXP); //TODO Find correct port number for NavX
 
 	leftCmd = 0;
 	rightCmd = 0;
@@ -55,7 +58,7 @@ float Drive::setLinVelocity(float linVal)
 		return 0; //NEUTRAL
 }
 
-float Drive::setTurnSpeed(float turn, bool turboButton)
+float Drive::setTurnSpeed(float turn, bool turboButton) //Is this needed?
 {
 	if((turn > DEADZONE && !turboButton) || (turn < -DEADZONE && !turboButton)) 
 		return turn * REDUCTION;
@@ -114,4 +117,15 @@ void Drive::TestSpeedController(int device_id, float velocity)
 	}
 
 	uut->Set(velocity);
+}
+
+
+
+
+
+// NavX gyro dashboard testing
+
+float Drive::getGyroDashboard()
+{
+	return navX->GetAngle();
 }

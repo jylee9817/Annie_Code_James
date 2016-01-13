@@ -5,6 +5,7 @@
 #include "Catapult/Catapult.h"
 #include "Operator Interface/OperatorInterface.h"
 
+
 class Annie: public IterativeRobot
 {
 private:
@@ -64,6 +65,10 @@ private:
 		SmartDashboard::PutNumber("Drive X-Value", oi->joyDrive->GetRawAxis(TURN_X_AXIS));//oi->getDashboard()->PutNumber("Drive X-Value", oi->joyDrive->GetRawAxis(TURN_X_AXIS));
 
 		SmartDashboard::PutBoolean("Compressor On?", manip->compressorState()); //oi->getDashboard()->PutBoolean("Compressor On?", manip->compressorState());
+
+
+		SmartDashboard::PutNumber("Gyro value", drive->getGyroDashboard());//NavX gyro dashboard testing
+
 	}
 
 	void TestPeriodic()

@@ -1,6 +1,7 @@
 #ifndef ANESTHESIOLOGIST_MACROS_H_
 #define ANESTHESIOLOGIST_MACROS_H_
 #include "WPILib.h"
+#include "AHRS.h" //http://www.chiefdelphi.com/forums/showthread.php?t=139111 <-Way to fix NavX issue: "undefined reference to.."
 /*
 	XBOX CONTROLS
 	
@@ -23,6 +24,7 @@
  * Up/down intake buttons were swapped
  * ****** READ THIS ^ *******
  */
+
 
 //http://first.wpi.edu/FRC/roborio/stable/docs/cpp/classJoystick.html
 #define INTAKE_BUTTON							(1)//(0)
