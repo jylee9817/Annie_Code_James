@@ -2,6 +2,7 @@
 #define DRIVE_H_
 #include "../Macros.h"
 #include "../Operator Interface/OperatorInterface.h"
+#include "AHRS.h"
 
 class Drive
 {
@@ -23,6 +24,9 @@ public:
 
 	// TJF: Test only function
 	void TestSpeedController(int device_id, float velocity);
+
+	float getGyroDashboard();
+	AHRS* navX;
 
 private:
 	CANTalon *frontLeftMotor;

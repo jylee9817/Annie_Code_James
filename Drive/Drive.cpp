@@ -10,6 +10,7 @@ Drive::Drive()
 	frontRightMotor = new CANTalon(DRIVE_FRONT_RIGHT_MOTOR_CHANNEL);
 	rearRightMotor = new CANTalon(DRIVE_REAR_RIGHT_MOTOR_CHANNEL);
 
+	navX = new AHRS(SPI::Port::kMXP);
 	leftCmd = 0;
 	rightCmd = 0;
 }
